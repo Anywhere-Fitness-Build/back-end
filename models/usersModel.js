@@ -4,7 +4,8 @@ module.exports = {
   find,
   findById,
   getUserByUsername,
-  add
+  add,
+  getRoleFromUserId
 };
 
 function find() {
@@ -23,6 +24,19 @@ function getUserByUsername(username) {
     .select("*")
     .where({ username })
     .first();
+}
+
+function getRoleFromUserId(id) {
+  return db("users")
+    .select("role_id")
+    .where({ id })
+    .first()
+    .then(obj => {
+      return obj.role_id;
+    })
+    .catch(() => {
+      return -1;
+    });
 }
 
 function add(user) {
