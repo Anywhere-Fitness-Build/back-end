@@ -123,7 +123,7 @@ router.delete("/:classId", verifyClassId, (req, res) => {
 //Must be an instructor to create a class.
 router.post("/", roleMiddleware, (req, res) => {
   //Check to see if user is an instructor
-  if (req.roleId !== 1) {
+  if (req.roleId !== 2) {
     res
       .status(403)
       .json({ message: "Must be an instructor to create classes" });
