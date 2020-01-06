@@ -33,7 +33,7 @@ function updateClass(updatedInfo, id) {
 
 function add(classObj) {
   return db("classes")
-    .insert(classObj)
+    .insert(classObj, "id")
     .then(ids => {
       const [id] = ids;
       return findById(id);
