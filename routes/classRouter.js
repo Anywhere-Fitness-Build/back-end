@@ -22,6 +22,21 @@ router.get("/:classId", verifyClassId, (req, res) => {
   res.status(200).json(req.classObj);
 });
 
+router.put("/:classId", verifyClassId, (req, res) => {
+  const body = req.body;
+  Classes.updateClass(body, req.params.classId)
+    .then(updatedRecords => {
+      res.status(200).json({ updatedRecords });
+    })
+    .catch(err => {
+      console.log("Error trying to update class by id: ", err);
+      res.status(500).json({
+        message: "There was an error trying to update the class.",
+        error: err.message
+      });
+    });
+});
+
 //Delete a class
 router.delete("/:classId", verifyClassId, (req, res) => {
   Classes.findById(req.params.classId)
@@ -52,7 +67,7 @@ router.delete("/:classId", verifyClassId, (req, res) => {
     });
 });
 
-// Need instructor id, name, type, startTime, duration, intensity, location, and maxSize
+// Need name, type, startTime, duration, intensity, location, and maxSize
 //Must be an instructor to create a class.
 router.post("/", roleMiddleware, (req, res) => {
   //Check to see if user is an instructor

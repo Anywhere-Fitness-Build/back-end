@@ -9,7 +9,8 @@ module.exports = {
   getAttendingUsers,
   findUsersClasses,
   removeById,
-  addAttendee
+  addAttendee,
+  updateClass
 };
 
 function find() {
@@ -20,6 +21,12 @@ function findWithFilter(filter) {
   return db("classes")
     .select("*")
     .where(filter);
+}
+
+function updateClass(updatedInfo, id) {
+  return db("classes")
+    .update(updatedInfo)
+    .where({ id });
 }
 
 function add(classObj) {
