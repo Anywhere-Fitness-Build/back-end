@@ -16,7 +16,20 @@ module.exports = {
 };
 
 function find() {
-  return db("classes");
+  return db("classes as cl")
+    .select(
+      "cl.id",
+      "cl.instructor_id",
+      "u.username as instructor_name",
+      "cl.name",
+      "cl.type",
+      "cl.startTime",
+      "cl.duration",
+      "cl.intensity",
+      "cl.location",
+      "cl.maxSize"
+    )
+    .join({ u: "users" }, "cl.instructor_id", "=", "u.id");
 }
 
 function findWithFilter(filter) {
@@ -47,9 +60,21 @@ function removeById(id) {
 }
 
 function findById(id) {
-  return db("classes")
-    .select("*")
-    .where({ id })
+  return db("classes as cl")
+    .select(
+      "cl.id",
+      "cl.instructor_id",
+      "u.username as instructor_name",
+      "cl.name",
+      "cl.type",
+      "cl.startTime",
+      "cl.duration",
+      "cl.intensity",
+      "cl.location",
+      "cl.maxSize"
+    )
+    .join({ u: "users" }, "cl.instructor_id", "=", "u.id")
+    .where({ "cl.id": id })
     .first();
 }
 
