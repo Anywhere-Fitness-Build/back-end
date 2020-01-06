@@ -22,6 +22,58 @@ router.get("/:classId", verifyClassId, (req, res) => {
   res.status(200).json(req.classObj);
 });
 
+//Get list of attendees by class id
+router.get("/:classId/attendees", verifyClassId, (req, res) => {
+  const classId = req.params.classId;
+  Classes.getAttendingUsers(classId)
+    .then(attendees => {
+      res.status(200).json(attendees);
+    })
+    .catch(err => {
+      console.log("There was an error retrieving attendees by class id", err);
+      res
+        .status(500)
+        .json({ message: "There was a server error retrieving the data." });
+    });
+});
+
+router.post("/:classId/attendees", verifyClassId, (req, res) => {
+  //Check if they are already in the class
+  const userId = req.token.subject;
+  const classId = req.params.classId;
+
+  Classes.getAttendee(classId, userId)
+    .then(attendee => {
+      if (attendee) {
+        //Already exists.
+        res.status(400).json({ message: "The user is already attending." });
+      } else {
+        //Add to class
+        return Classes.addAttendee(classId, userId)
+          .then(() => {
+            res.status(200).json({ message: "User added to class" });
+          })
+          .catch(err => {
+            console.log(
+              "There was an error trying to add attendee to class by id",
+              err
+            );
+            res.status(500).json({
+              message:
+                "There was a server error trying to add attendee to class"
+            });
+          });
+      }
+    })
+    .catch(err => {
+      console.log("error getting attendee: ", err);
+      res.status(500).json({
+        message: "There was a server error trying to check if attendee exists"
+      });
+    });
+});
+
+//Update class by id
 router.put("/:classId", verifyClassId, (req, res) => {
   const body = req.body;
   Classes.updateClass(body, req.params.classId)

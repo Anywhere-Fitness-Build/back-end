@@ -11,7 +11,8 @@ module.exports = {
   removeById,
   addAttendee,
   updateClass,
-  removeAttendee
+  removeAttendee,
+  getAttendee
 };
 
 function find() {
@@ -84,6 +85,13 @@ function findUsersClasses(user_id) {
 
 function addAttendee(class_id, user_id) {
   return db("class_attendees").insert({ class_id, user_id });
+}
+
+function getAttendee(class_id, user_id) {
+  return db("class_attendees")
+    .select("*")
+    .where({ class_id, user_id })
+    .first();
 }
 
 function removeAttendee(class_id, user_id) {
