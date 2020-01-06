@@ -24,8 +24,18 @@ router.get("/:classId", verifyClassId, (req, res) => {
 
 //Delete a class
 router.delete("/:classId", verifyClassId, (req, res) => {
-  Classes.removeById(req.params.classId)
-    .then(obj => {
+  Classes.findById(req.params.classId)
+    .then(classObj => {
+      if (classObj.instructor_id === req.token.subject) {
+        return Classes.removeById(req.params.classId);
+      } else {
+        res.status(403).json({
+          message:
+            "You must be the instructor of this class to delete this class"
+        });
+      }
+    })
+    .then(() => {
       res.status(200).json({ message: "Class deleted" });
     })
     .catch(err => {
@@ -33,6 +43,12 @@ router.delete("/:classId", verifyClassId, (req, res) => {
       res
         .status(500)
         .json({ message: "Server error, could not remove class by id" });
+    })
+    .catch(err => {
+      console.log("error: ", err);
+      res.status(500).json({
+        message: "There was a server error while trying to delete a class"
+      });
     });
 });
 
