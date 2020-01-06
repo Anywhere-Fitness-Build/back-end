@@ -46,29 +46,84 @@ router.post("/:classId/attendees", verifyClassId, (req, res) => {
     .then(attendee => {
       if (attendee) {
         //Already exists.
-        res.status(400).json({ message: "The user is already attending." });
+        res.status(400).json({ message: "This user is already attending." });
       } else {
-        //Add to class
-        return Classes.addAttendee(classId, userId)
-          .then(() => {
-            res.status(200).json({ message: "User added to class" });
-          })
-          .catch(err => {
-            console.log(
-              "There was an error trying to add attendee to class by id",
-              err
-            );
-            res.status(500).json({
-              message:
-                "There was a server error trying to add attendee to class"
+        //Check if class is full
+        Classes.getAttendingUsers(classId).then(attending => {
+          Classes.findById(classId)
+            .then(classObj => {
+              if (attending.length < classObj.maxSize) {
+                //Add to class
+                Classes.addAttendee(classId, userId)
+                  .then(() => {
+                    res.status(200).json({ message: "User added to class" });
+                  })
+                  .catch(err => {
+                    console.log(
+                      "There was an error trying to add attendee to class by id",
+                      err
+                    );
+                    res.status(500).json({
+                      message:
+                        "There was a server error trying to add attendee to class"
+                    });
+                  });
+              } else {
+                res.status(400).json({
+                  message:
+                    "Class is full (at max size), cannot add any more attendees"
+                });
+              }
+            })
+            .catch(err => {
+              console.log("Error finding class by id: ", err);
+              res
+                .status(500)
+                .json({
+                  message: "There was a server error trying to find class by id"
+                });
             });
-          });
+        });
       }
     })
     .catch(err => {
       console.log("error getting attendee: ", err);
       res.status(500).json({
         message: "There was a server error trying to check if attendee exists"
+      });
+    });
+});
+
+router.delete("/:classId/attendees", verifyClassId, (req, res) => {
+  const userId = req.token.subject;
+  const classId = req.params.classId;
+
+  //Check if user is in class
+  Classes.getAttendee(classId, userId)
+    .then(attendee => {
+      if (attendee) {
+        Classes.removeAttendee(classId, userId)
+          .then(() => {
+            res.status(200).json({ message: "User removed from class" });
+          })
+          .catch(err => {
+            console.log("Error removing attendee", err);
+            res.status(500).json({
+              message:
+                "There was a server error trying to remove the attendee from the class"
+            });
+          });
+      } else {
+        res.status(400).json({
+          message:
+            "The user cannot be removed because the user is already not attending"
+        });
+      }
+    })
+    .catch(err => {
+      console.log("Error trying to verify attendee, ", err);
+      res.status(500).json({
+        message: "There was a server error trying to verify attendee"
       });
     });
 });
