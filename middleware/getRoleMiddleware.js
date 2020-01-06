@@ -5,6 +5,7 @@ module.exports = (req, res, next) => {
     Users.getRoleFromUserId(req.token.subject)
       .then(roleId => {
         req.roleId = roleId;
+        console.log("Role of user: ", req.roleId);
         next();
       })
       .catch(err => {
