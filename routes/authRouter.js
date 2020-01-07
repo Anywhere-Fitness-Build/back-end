@@ -3,6 +3,7 @@ const router = express.Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Users = require("../models/usersModel");
+const authMiddleware = require("../middleware/authMiddleware");
 
 function getRoleToId(isInstructor) {
   return isInstructor ? 2 : 1;
@@ -56,6 +57,11 @@ router.post("/login", (req, res) => {
       }
     });
   }
+});
+
+router.get("/whoami", authMiddleware, (req, res) => {
+  const { subject, username } = req.token;
+  res.status(200).json({ id: subject, username });
 });
 
 function generateToken(user) {
