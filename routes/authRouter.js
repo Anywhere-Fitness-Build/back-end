@@ -4,6 +4,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Users = require("../models/usersModel");
 const authMiddleware = require("../middleware/authMiddleware");
+const getRoleMiddleware = require("../middleware/getRoleMiddleware");
 
 function getRoleToId(isInstructor) {
   return isInstructor ? 2 : 1;
@@ -51,13 +52,11 @@ router.post("/login", (req, res) => {
     Users.getUserByUsername(body.username).then(dbUser => {
       if (dbUser && bcrypt.compareSync(body.password, dbUser.password)) {
         const token = generateToken(dbUser);
-        res
-          .status(200)
-          .json({
-            message: "Welcome! here's your token",
-            token,
-            id: dbUser.id
-          });
+        res.status(200).json({
+          message: "Welcome! here's your token",
+          token,
+          id: dbUser.id
+        });
       } else {
         res.status(401).json({ message: "Invalid credentials" });
       }
@@ -65,9 +64,9 @@ router.post("/login", (req, res) => {
   }
 });
 
-router.get("/whoami", authMiddleware, (req, res) => {
+router.get("/whoami", [authMiddleware, getRoleMiddleware], (req, res) => {
   const { subject, username } = req.token;
-  res.status(200).json({ id: subject, username });
+  res.status(200).json({ id: subject, username, role_id: req.roleId });
 });
 
 function generateToken(user) {
