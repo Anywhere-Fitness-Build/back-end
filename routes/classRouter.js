@@ -37,6 +37,20 @@ router.get("/:classId/attendees", verifyClassId, (req, res) => {
     });
 });
 
+router.get("/:classId/attendees/size", verifyClassId, (req, res) => {
+  const classId = req.params.classId;
+  Classes.getAttendingUsers(classId)
+    .then(attendees => {
+      res.status(200).json({ size: attendees.length });
+    })
+    .catch(err => {
+      console.log("There was an error retrieving attendees by class id", err);
+      res
+        .status(500)
+        .json({ message: "There was a server error retrieving the data." });
+    });
+});
+
 router.post("/:classId/attendees", verifyClassId, (req, res) => {
   //Check if they are already in the class
   const userId = req.token.subject;
@@ -77,11 +91,9 @@ router.post("/:classId/attendees", verifyClassId, (req, res) => {
             })
             .catch(err => {
               console.log("Error finding class by id: ", err);
-              res
-                .status(500)
-                .json({
-                  message: "There was a server error trying to find class by id"
-                });
+              res.status(500).json({
+                message: "There was a server error trying to find class by id"
+              });
             });
         });
       }
