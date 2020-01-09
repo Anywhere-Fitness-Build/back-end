@@ -54,4 +54,29 @@ describe("classes model", () => {
         fail(`Test failed with error ${err}`);
       });
   });
+
+  it("adds user attendee to class", async () => {
+    //create class
+    const classObj = {
+      name: "attendee test",
+      type: "test",
+      startTime: "2020-01-13T16:30:00.000Z",
+      instructor_id: 1,
+      duration: "1h",
+      intensity: 8,
+      location: "San Francisco",
+      maxSize: 10
+    };
+
+    //Get class id from insertion
+    const [classId] = await db("classes").insert(classObj);
+
+    //Create user
+    const user = { username: "addattendee", password: "testing", role_id: 2 };
+    const [userId] = await db("users").insert(user);
+
+    await Classes.addAttendee(classId, userId);
+
+    //Check if insertion is good.
+  });
 });
