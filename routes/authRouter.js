@@ -62,7 +62,8 @@ router.post("/login", (req, res) => {
           message: "Welcome! here's your token",
           token,
           id: dbUser.id,
-          username: dbUser.username
+          username: dbUser.username,
+          role_id: dbUser.role_id
         });
       } else {
         res.status(401).json({ message: "Invalid credentials" });
