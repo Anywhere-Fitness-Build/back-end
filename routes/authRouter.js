@@ -14,7 +14,7 @@ router.get("/", (req, res) => {
   res.status(200).json({ message: "I am here!" });
 });
 
-router.post("/register", (req, res) => {
+router.post("/register", async (req, res) => {
   const body = req.body;
   if (
     !body.username ||
@@ -25,6 +25,12 @@ router.post("/register", (req, res) => {
       message: "username, password, and isInstructor fields are required"
     });
   } else {
+    const us = await Users.getUserByUsername(body.username);
+    if (us) {
+      res.status(400).json({ message: "Username already taken" });
+      return;
+    }
+
     const hashedPass = bcrypt.hashSync(body.password, 8);
     const role_id = getRoleToId(body.isInstructor);
 
